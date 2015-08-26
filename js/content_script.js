@@ -88,10 +88,9 @@ searchBar.onkeyup = function(evt) {
         var li = document.createElement("li");
         li.innerHTML = "";
 
-        if (tab.favIconUrl) {
-          li.innerHTML = "<img src='"  + tab.favIconUrl + "' />";
-        }
+        url = tab.favIconUrl ? tab.favIconUrl : chrome.extension.getURL("img/favicon.png");
 
+        li.innerHTML = "<img src='"  + url + "' />";
         li.innerHTML += "<div class='tabster-search-item-content'><h3>[" + i + "] " + tab.title + 
           "</h3><span>" + tab.url + "</span></div>";
 

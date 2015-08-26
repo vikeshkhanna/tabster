@@ -103,23 +103,23 @@ return tabs.sort(function(tab1, tab2) { return ranks[tab2.id] - ranks[tab1.id] }
 }
 
 chrome.runtime.onMessage.addListener(
-function(request, sender, sendResponse) {
-  var args = request.args;
-  console.log("<tabster> method : " + request.method);
-  console.log("<tabster> args : " + args);
+  function(request, sender, sendResponse) {
+    var args = request.args;
+    console.log("<tabster> method : " + request.method);
+    console.log("<tabster> args : " + args);
 
-  if (request.method === "updateIndex") {
-      updateIndex(sender.tab, args);
-      sendResponse("Updated index for Id : " + sender.tab.id);
-  } else if (request.method === "search") {
-      sendResponse(search(args));
-  } else if (request.method === "switchToTab") {
-      // chrome.tabs is unavailable in content scripts
-      chrome.tabs.update(parseInt(args), { selected: true });
-      sendResponse("Switched to tab: " + args);
-  } else {
-      console.log("<tabster> invalid request");
-      sendResponse("Error");
+    if (request.method === "updateIndex") {
+        updateIndex(sender.tab, args);
+        sendResponse("Updated index for Id : " + sender.tab.id);
+    } else if (request.method === "search") {
+        sendResponse(search(args));
+    } else if (request.method === "switchToTab") {
+        // chrome.tabs is unavailable in content scripts
+        chrome.tabs.update(parseInt(args), { selected: true });
+        sendResponse("Switched to tab: " + args);
+    } else {
+        console.log("<tabster> invalid request");
+        sendResponse("Error");
+      }
     }
-  }
-);
+  );
