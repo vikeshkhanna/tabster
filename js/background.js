@@ -6,8 +6,10 @@ var tabMap = {}
 var index = {}
 
 // Prune invalid pages in index on every 100th request
-var pruneInterval = 10;
+var pruneInterval = 50;
 var indexUpdateRequestCnt = 0;
+
+var initDone = false;
 
 function updateIndex(tab, keyWords) {
   var tabId = tab.id;
@@ -25,17 +27,21 @@ function updateIndex(tab, keyWords) {
     if (word) {
       var cnt = keyWords[word];
       
-      // Initialize with empty list
-      if (!(word in index)) {
-        index[word] = [];
-      }
+      try {
+          // Initialize with empty list
+          if (!(word in index)) {
+            index[word] = [];
+          }
 
-      // Push the tab object
-      index[word].push({
-        tab : tab,
-        revision : tabMap[tabId],
-        rank : cnt
-      });
+          // Push the tab object
+          index[word].push({
+            tab : tab,
+            revision : tabMap[tabId],
+            rank : cnt
+          });
+      } catch (ex) {
+        console.error("<tabster> exception while updating index: " + ex);
+      }
     }
   }
 
@@ -54,7 +60,7 @@ function pruneIndex() {
     tabs.forEach(function(tabItem, i, arr) {
       var latestRevision = tabMap[tabItem.tab.id];
 
-      if (obj.revision != latestRevision) {
+      if (tabItem.revision != latestRevision) {
         toDeleteIndices.push(i);
       }
     });
@@ -65,6 +71,8 @@ function pruneIndex() {
   }
 }
 
+
+// TODO: hacky algorithm / heuristics. Do better.
 function search(text) {
   // Rank Ordered list of tab IDs
   var result = [];
@@ -73,33 +81,38 @@ function search(text) {
 
   // For each word in query
   words.forEach(function(elem, i, arr) {
-    var word = stemmer(elem.toLowerCase());
-    if (word in index) {
-      console.log("<tabster> " + word + " found in index!");
-      var tabs = index[word];
+        var word = stemmer(elem.toLowerCase());
+        if (word in index) {
+          console.log("<tabster> " + word + " found in index!");
+          var tabs = index[word];
 
-      tabs.forEach(function(tabItem, i, arr) {
-        // tab is latest
-        if (tabItem.revision == tabMap[tabItem.tab.id]) {
-          if (!(tabItem.tab.id in ranks)) {
-            ranks[tabItem.tab.id] = {
-              rank: 0,
-              tab: tabItem.tab
-          };
-        }
-
-        // Add rank contributed by this tab
-        ranks[tabItem.tab.id].rank += tabItem.rank;
+          tabs.forEach(function(tabItem, i, arr) {
+            // tab is latest
+            if (tabItem.revision == tabMap[tabItem.tab.id]) {
+              // This tab is being added for the firs time
+              if (!(tabItem.tab.id in ranks)) {
+                ranks[tabItem.tab.id] = {
+                  rank: tabItem.rank,
+                  tab: tabItem.tab
+              };
+            } else {
+                // Add rank contributed by this tab.
+                // Every subsequent word gets a boost. Why 5, you ask? Good question.
+                ranks[tabItem.tab.id].rank += 10*tabItem.rank;
+            }
+          }
+        });
       }
-    });
-  }
-});
+  });
 
-var tabs = Object.keys(ranks).map(function(key) {
-  return ranks[key].tab;
-})
-// Sort in the descending order of ranks.
-return tabs.sort(function(tab1, tab2) { return ranks[tab2.id] - ranks[tab1.id] });
+  console.debug("<tabster> ranks for term: " + text);
+  console.debug(ranks);
+
+  var tabs = Object.keys(ranks).map(function(key) {
+    return ranks[key].tab;
+  })
+  // Sort in the descending order of ranks.
+  return tabs.sort(function(tab1, tab2) { return ranks[tab2.id].rank - ranks[tab1.id].rank });
 }
 
 chrome.runtime.onMessage.addListener(
@@ -122,4 +135,30 @@ chrome.runtime.onMessage.addListener(
         sendResponse("Error");
       }
     }
-  );
+);
+
+var scripts = [
+    'js/porter.js',
+    'js/content_script.js'
+];
+
+// Inject content script into pages in the beginning without refresh.
+chrome.tabs.query({}, function(tabs) {
+    tabs.forEach(function(tab, i, arr) {
+        scripts.forEach(function(script, i, scriptArray) {
+            chrome.tabs.executeScript(tab.id, { file: script }, function() {
+            if (chrome.runtime.lastError) {
+                console.error("<tabster> Cannot inject script: " + script + " to tabId: " + tab.id);
+            } else {
+                console.log("<tabster> Injected script: " + script + " to tabId: " + tab.id);
+            }
+        });
+      });
+   });
+});
+
+// Update revision for closed tab - This invalidates all existing index items.
+chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
+    console.log("<tabster> Removing tab from index: " + tabId);
+    tabMap[tabId] += 1;
+});

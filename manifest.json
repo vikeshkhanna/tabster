@@ -6,8 +6,8 @@
   "version": "1.0",
 
   "permissions": [
-    "activeTab",
-    "tabs"
+    "tabs",
+    "<all_urls>"
   ],
   "background" : {
     "scripts" : ["js/porter.js", "js/background.js"]

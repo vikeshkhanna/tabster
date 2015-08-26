@@ -1,6 +1,8 @@
-var stopWords  = ["the", "a", "an", "is", "he", "she"];
+var stopWords  = ["the", "a", "an", "is", "he", "she", "are", "and", "it", "its", "for", "was", "were", "of", "that"];
 
 var SEARCH_ON = false;
+var SEARCH_ITEMS_ID = "tabster-search-items";
+
 var currentTabs = null;
 
 function strip(text) {
@@ -9,13 +11,13 @@ function strip(text) {
   return clean;
 }
 
-function getKeywords(text) {
+function getKeywords(text, title) {
   var words = text.split(/[ ,]+/);
   var keywords = {};
 
   words.forEach(function(elem, i, arr) {
     var word = stemmer(elem.toLowerCase());
-    if (!stopWords.indexOf(word) >= 0) {
+    if (stopWords.indexOf(word) < 0) {
       if (!(word in keywords)) {
         keywords[word] = 0;
       }
@@ -23,12 +25,23 @@ function getKeywords(text) {
     }
   });
 
+  // Boost title rank
+  var titleWords = title.split(/[ ,]+/);
+
+  titleWords.forEach(function(titleWord, i, arr) {
+      var word = stemmer(titleWord.toLowerCase());
+      if (!(word in keywords)) {
+        keywords[word] = 0;
+      }
+      keywords[word] += 100;
+  });
+
   return keywords;
 }
 
 
 var strippedText = strip(document.body.textContent);
-var keyWords = getKeywords(strippedText);
+var keyWords = getKeywords(strippedText, document.title);
 
 console.log(keyWords);
 
@@ -59,12 +72,14 @@ function onClick(evt) {
   }
 }
 
-var searchOverlay = document.createElement("div");
-searchOverlay.id = "tabster-search-overlay";
-searchOverlay.innerHTML = "<input type='text' id='tabster-search-bar' placeholder='Search...' /><span id='tabster-tip'>Tip: Go to tab with Ctrl + [tab #]</span>" + 
-  "<hr /><ul id='tabster-search-items'></ul>";
+// Remove any old searchOverlay
+var oldOverlay = document.getElementById("tabster-search-overlay");
 
-document.body.appendChild(searchOverlay);
+if (oldOverlay) {
+    oldOverlay.parentNode.removeChild(oldOverlay);
+}
+
+
 
 // Add keypress listened
 if (window == top) {
@@ -72,11 +87,31 @@ if (window == top) {
   window.addEventListener('click', onClick, false);
 }
 
+
+function createSearchItems(searchOverlay) {
+    var searchItems = document.createElement("ul");
+    searchItems.id = SEARCH_ITEMS_ID;
+    searchOverlay.appendChild(searchItems);
+    return searchItems;
+}
+
+function removeSearchItems() {
+    var searchItems = document.getElementById(SEARCH_ITEMS_ID);
+    if (searchItems) {
+        searchItems.parentNode.removeChild(searchItems);
+    }
+}
+
+var searchOverlay = document.createElement("div");
+searchOverlay.id = "tabster-search-overlay";
+searchOverlay.innerHTML = "<input type='text' id='tabster-search-bar' placeholder='Search...' /><span id='tabster-tip'>Tip: Go to top tabs with Ctrl + [result # 0-9]</span><hr />";
+document.body.appendChild(searchOverlay);
+
 var searchBar = document.getElementById("tabster-search-bar");
-var searchItems = document.getElementById("tabster-search-items");
+var searchItems = createSearchItems(searchOverlay);
 
 searchBar.onkeyup = function(evt) {
-  searchItems.innerHTML = '';
+  searchItems.innerHTML = "";
 
   if (SEARCH_ON && evt.ctrlKey && ((evt.keyCode >= 96 && evt.keyCode <= 105) || (evt.keyCode >=48 && evt.keyCode <= 57))) {
     var id = (evt.keyCode >= 96 && evt.keyCode <= 105 ? evt.keyCode - 96 : evt.keyCode - 48);
@@ -93,6 +128,7 @@ searchBar.onkeyup = function(evt) {
   // Send message to the background page
   chrome.runtime.sendMessage({ method: "search", args: text}, function(tabs) {
     if (text && searchBar.value == text) {
+      // var searchItems = createSearchItems();
       // Clear list
       console.log("<tabster> Search results: ")
       console.log(tabs);
@@ -111,7 +147,7 @@ searchBar.onkeyup = function(evt) {
           "</h3><span>" + tab.url + "</span></div>";
 
         li.onclick = function(evt) {
-          chrome.runtime.sendMessage({ method: "switchToTab", args: currentTabs[i].id });
+          chrome.runtime.sendMessage({ method: "switchToTab", args: tabs[i].id });
         }
 
         searchItems.appendChild(li);
