@@ -30,8 +30,6 @@ function updateIndex(tab, keyWords) {
         index[word] = [];
       }
 
-      console.log(word);
-
       // Push the tab object
       index[word].push({
         tab : tab,
