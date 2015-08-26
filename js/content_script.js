@@ -94,8 +94,8 @@ searchBar.onkeyup = function(evt) {
         li.innerHTML += "<div class='tabster-search-item-content'><h3>[" + i + "] " + tab.title + 
           "</h3><span>" + tab.url + "</span></div>";
 
-        li.onclick = function() {
-          chrome.runtime.sendMessage({ method: "switchToTab", args: currentTabs[id].id });
+        li.onclick = function(evt) {
+          chrome.runtime.sendMessage({ method: "switchToTab", args: currentTabs[i].id });
         }
 
         searchItems.appendChild(li);

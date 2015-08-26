@@ -48,6 +48,8 @@
 
 #tabster-search-items li img {
   float: left;
+  width: 24px;
+  height: 24px;
 }
 
 #tabster-search-items li:hover {
