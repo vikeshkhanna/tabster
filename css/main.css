@@ -9,18 +9,23 @@
   border-radius: 10px;
 
   position: fixed;
-  z-index: 1000;
+  z-index: 2147483647;
   top: 0;
   bottom: 0;
   left: 0;
   right: 0;
   margin: auto;
+  font-family: 'Arial';
 }
 
 #tabster-search-overlay * {
   margin: 0 auto;
   margin: 10px;
   color: white !important;
+}
+
+#tabster-search-overlay hr {
+  background-color: white !important;
 }
 
 #tabster-search-bar {
@@ -38,6 +43,7 @@
   list-style-type: none;
   overflow: auto;
   max-height: 500px;
+  padding-left: 0;
 }
 
 #tabster-search-items li {

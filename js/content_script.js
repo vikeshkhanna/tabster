@@ -5,7 +5,7 @@ var currentTabs = null;
 
 function strip(text) {
   var htmlRemoved = text.replace(/<(?:.|\n)*?>/gm, '');
-  var clean = htmlRemoved.replace(/[^A-Za-z0-9 ]/g, '');
+  var clean = htmlRemoved.replace(/[^A-Za-z0-9\-_ ]/g, ' ');
   return clean;
 }
 
@@ -37,6 +37,11 @@ chrome.runtime.sendMessage({ method: "updateIndex", args: keyWords}, function(re
     console.log(response);
 });
 
+function closeSearch() {
+    searchOverlay.style.display = "none";
+    SEARCH_ON = false;
+}
+
 function onKeyUp(evt) {
   // Ctrl+Enter
   if (evt.ctrlKey && evt.keyCode == 13) {
@@ -44,8 +49,13 @@ function onKeyUp(evt) {
     searchBar.focus();
     SEARCH_ON = true;
   } else if (evt.keyCode == 27) {
-    searchOverlay.style.display = "none";
-    SEARCH_ON = false;
+    closeSearch();
+  }
+}
+
+function onClick(evt) {
+  if (evt.target.id.substring(0,7) != 'tabster') {
+    closeSearch();
   }
 }
 
@@ -59,16 +69,23 @@ document.body.appendChild(searchOverlay);
 // Add keypress listened
 if (window == top) {
   window.addEventListener('keyup', onKeyUp, false);
+  window.addEventListener('click', onClick, false);
 }
 
 var searchBar = document.getElementById("tabster-search-bar");
 var searchItems = document.getElementById("tabster-search-items");
 
 searchBar.onkeyup = function(evt) {
+  searchItems.innerHTML = '';
 
   if (SEARCH_ON && evt.ctrlKey && ((evt.keyCode >= 96 && evt.keyCode <= 105) || (evt.keyCode >=48 && evt.keyCode <= 57))) {
     var id = (evt.keyCode >= 96 && evt.keyCode <= 105 ? evt.keyCode - 96 : evt.keyCode - 48);
     chrome.runtime.sendMessage({ method: "switchToTab", args: currentTabs[id].id });
+    return;
+  }
+
+  if (evt.keyCode == 27) {
+    closeSearch();
     return;
   }
 
@@ -77,7 +94,6 @@ searchBar.onkeyup = function(evt) {
   chrome.runtime.sendMessage({ method: "search", args: text}, function(tabs) {
     if (text && searchBar.value == text) {
       // Clear list
-      searchItems.innerHTML = '';
       console.log("<tabster> Search results: ")
       console.log(tabs);
 
