@@ -52,6 +52,7 @@ function onKeyUp(evt) {
   // Ctrl+Enter
   if (evt.ctrlKey && evt.keyCode == 13) {
     document.body.appendChild(searchOverlay);
+    searchOverlay.style.display = "block";
   } else if (evt.keyCode == 27) {
     try {
       document.body.removeChild(searchOverlay);

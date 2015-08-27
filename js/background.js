@@ -6,7 +6,7 @@ var tabMap = {}
 var index = {}
 
 // Prune invalid pages in index on every 100th request
-var pruneInterval = 50;
+var pruneInterval = 20;
 var indexUpdateRequestCnt = 0;
 
 var initDone = false;
@@ -88,7 +88,7 @@ function search(text) {
 
           tabs.forEach(function(tabItem, i, arr) {
             // tab is latest
-            if (tabItem.revision == tabMap[tabItem.tab.id]) {
+            if (tabItem.revision == tabMap[tabItem.tab.id] && tabItem.tab.index >= 0) {
               // This tab is being added for the firs time
               if (!(tabItem.tab.id in ranks)) {
                 ranks[tabItem.tab.id] = {
