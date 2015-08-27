@@ -1,0 +1,94 @@
+<style type="text/css">
+#tabster-search-overlay * {
+  color: white !important;
+}
+
+#tabster-search-overlay hr {
+  background-color: white;
+  margin-top: 5px;
+  display: block;
+}
+
+#tabster-search-overlay span {
+  margin-top: 15px;
+  display: block;
+}
+
+#tabster-search-bar {
+  width: 98%;
+  color: #000 !important;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 20px;
+  height: 34px;
+  margin-bottom: 0;
+  padding: 4px;
+  background-color: white;
+  border-radius: 3px;
+  border: 1px solid #E8E8E8;
+  box-shadow: #444 0px 0px 1px;
+  width: 100%;
+  outline: none;
+  box-sizing: border-box;
+  display: block;
+}
+
+#tabster-search-items {
+  margin-top: 20px;
+  list-style-type: none;
+  overflow: auto;
+  overflow-x: hidden;
+  max-height: 500px;
+  padding-left: 0;
+}
+
+#tabster-search-items li {
+  color: white;
+  padding: 10px;
+  border-bottom: solid white 1px;
+}
+
+.tabster-search-item-content {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 15px;
+  width: 90%;
+}
+
+#tabster-search-items li img {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  vertical-align: middle;
+}
+
+#tabster-search-items li:hover {
+  cursor: pointer;
+  background-color:#2457FF;
+}
+
+#tabster-search-items li:focus {
+  background-color:#2457FF;
+}
+
+
+li.focus {
+  background-color:#2457FF;
+}
+
+#tabster-search-items li h3 {
+  font-size: 14px !important;
+}
+
+#tabster-search-items li span {
+  font-size: 12px !important;
+}
+</style>
+
+<script type="text/javascript" src="../js/searchBar.js"></script>
+
+<div id="tabster-search-overlay" style="display: block;">
+  <input type="text" id="tabster-search-bar" placeholder="Search...">
+  <span id="tabster-tip">Tip: Go to top tabs with Ctrl + [result # 0-9]</span>
+  <hr />
+  <ul id="tabster-search-items"></ul>
+</div>

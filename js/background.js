@@ -130,7 +130,11 @@ chrome.runtime.onMessage.addListener(
         // chrome.tabs is unavailable in content scripts
         chrome.tabs.update(parseInt(args), { selected: true });
         sendResponse("Switched to tab: " + args);
-    } else {
+    } else if (request.method === "closeSearchOverlay") {
+      chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+          chrome.tabs.sendMessage(tabs[0].id, request);
+      });
+    }else {
         console.log("<tabster> invalid request");
         sendResponse("Error");
       }

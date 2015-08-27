@@ -1,6 +1,5 @@
 #tabster-search-overlay {
   background-color: black;
-  display: none;
   width: calc(60% - 20px);
   box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.8);
 
@@ -16,60 +15,5 @@
   left: 0;
   right: 0;
   margin: auto;
-  font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
-}
-
-#tabster-search-overlay * {
-  margin: 0 auto;
-  margin: 10px;
-  color: white !important;
-}
-
-#tabster-search-overlay hr {
-  background-color: white !important;
-}
-
-#tabster-search-bar {
-  width: 98%;
-  display: block;
-  background: white;
-  font-size: 24px;
-  height: 26px;
-  border: 0;
-  padding: 0;
-  color: black !important;
-}
-
-#tabster-search-items {
-  margin-top: 20px;
-  list-style-type: none;
-  overflow: auto;
-  overflow-x: hidden;
-  max-height: 500px;
-  padding-left: 0;
-}
-
-#tabster-search-items li {
-  color: white;
-  padding: 10px;
-  border-bottom: solid white 1px;
-}
-
-#tabster-search-items li img {
-  float: left;
-  width: 24px;
-  height: 24px;
-}
-
-#tabster-search-items li:hover {
-  cursor: pointer;
-  background-color:#2457FF;
-}
-
-#tabster-search-items li h3 {
-  font-size: 14px !important;
-}
-
-#tabster-search-items li span {
-  font-size: 12px !important;
+  font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif !important;
 }

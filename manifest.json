@@ -18,10 +18,12 @@
       "css" : ["css/main.css"],
       "js" : ["js/porter.js", "js/content_script.js"],
       "run_at" : "document_idle",
-      "all_frames" : false
+      "all_frames" : true
     }
   ],
   "web_accessible_resources": [
-    "img/*.png"
+    "img/*.png",
+    "html/*.html",
+    "js/searchBar.js"
   ]
 }
